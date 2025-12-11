@@ -21,7 +21,7 @@ public class MatchController {
 
     // GET /matches – upcoming + in-progress
     @GetMapping("/matches")
-    @Cacheable(value = "openMatches", unless = "#result == null || #result.body.isEmpty()")
+    @Cacheable(value = "userMatchesCache", unless = "#result == null || #result.body.isEmpty()")
     public ResponseEntity<List<Match>> listOpenMatches() {
         return ResponseEntity.ok(repo.findOpenOrInProgress());
     }
