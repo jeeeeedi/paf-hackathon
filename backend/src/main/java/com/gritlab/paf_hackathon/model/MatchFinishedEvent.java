@@ -1,4 +1,4 @@
-package com.gritlab.paf_hackathon.matches;
+package com.gritlab.paf_hackathon.model;
 
 import java.util.UUID;
 

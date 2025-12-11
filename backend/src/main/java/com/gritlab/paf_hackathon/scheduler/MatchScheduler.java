@@ -8,6 +8,8 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import com.gritlab.paf_hackathon.model.Match;
+import com.gritlab.paf_hackathon.model.MatchFinishedEvent;
 import com.gritlab.paf_hackathon.model.MatchStatus;
 import com.gritlab.paf_hackathon.model.Outcome;
 import com.gritlab.paf_hackathon.repository.MatchRepository;
