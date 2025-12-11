@@ -1,9 +1,7 @@
 package com.gritlab.paf_hackathon.model;
 
 public enum BetStatus {
-    PENDING,
+    PLACED,
     WON,
     LOST,
-    VOID,
-    CASHED_OUT
 }
