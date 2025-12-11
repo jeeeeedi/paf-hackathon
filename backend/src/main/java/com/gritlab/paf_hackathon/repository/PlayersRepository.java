@@ -8,5 +8,6 @@ import java.util.Optional;
 
 public interface PlayersRepository extends MongoRepository<Player, String> {
     Optional<Player> findByNameIgnoreCase(String name);
+    Optional<Player> findByName(String name);
     boolean existsByName(String name);
 }

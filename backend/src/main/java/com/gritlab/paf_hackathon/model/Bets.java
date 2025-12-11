@@ -1,5 +1,6 @@
 package com.gritlab.paf_hackathon.model;
 
+import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.List;
 
@@ -11,6 +12,22 @@ import jakarta.validation.constraints.Positive;
 
 @Document(collection = "bets")
 public class Bets {
+    @Override
+    public String toString() {
+        return "Bets{" +
+                "id='" + id + '\'' +
+                ", playerName='" + playerName + '\'' +
+                ", type=" + type +
+                ", status=" + status +
+                ", stake=" + stake +
+                ", finalOdds=" + finalOdds +
+                ", potentialPayout=" + potentialPayout +
+                ", winAmount=" + winAmount +
+                ", placedAt=" + placedAt +
+                ", settledAt=" + settledAt +
+                ", selections=" + selections +
+                '}';
+    }
 
     @Id
     private String id;
@@ -45,14 +62,16 @@ public class Bets {
 
     @NotNull
     @Field("PlacedAt")
-    private OffsetDateTime placedAt;
+    private Instant placedAt;
 
     @Field("SettledAt")
-    private OffsetDateTime settledAt;
+    private Instant settledAt;
 
     @NotNull
     @Field("Selections")
     private List<BetSelection> selections;
+
+    public Bets() {}
 
     // Getters and setters
     public String getId() {
@@ -119,19 +138,19 @@ public class Bets {
         this.winAmount = winAmount;
     }
 
-    public OffsetDateTime getPlacedAt() {
+    public Instant getPlacedAt() {
         return placedAt;
     }
 
-    public void setPlacedAt(OffsetDateTime placedAt) {
+    public void setPlacedAt(Instant placedAt) {
         this.placedAt = placedAt;
     }
 
-    public OffsetDateTime getSettledAt() {
+    public Instant getSettledAt() {
         return settledAt;
     }
 
-    public void setSettledAt(OffsetDateTime settledAt) {
+    public void setSettledAt(Instant settledAt) {
         this.settledAt = settledAt;
     }
 
