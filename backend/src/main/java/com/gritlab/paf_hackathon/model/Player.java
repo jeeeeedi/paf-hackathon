@@ -1,5 +1,6 @@
 package com.gritlab.paf_hackathon.model;
 
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
@@ -25,6 +26,14 @@ public class Player {
     @NotNull
     @Field("createdAt")
     private String createdAt; // ($date-time)
+
+    public Player() {
+    }
+
+    public Player(String name, Number balance) {
+        this.name = name;
+        this.balance = balance;
+    }
 
     // Getters and Setters
     public String getId() {

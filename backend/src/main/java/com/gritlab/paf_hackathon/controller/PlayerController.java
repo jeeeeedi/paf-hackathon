@@ -3,6 +3,7 @@ import com.gritlab.paf_hackathon.model.Player;
 import com.gritlab.paf_hackathon.model.Bet;
 import com.gritlab.paf_hackathon.model.Transaction;
 import com.gritlab.paf_hackathon.repository.PlayersRepository;
+import com.gritlab.paf_hackathon.dto.PlayerRequest;
 
 import java.util.List;
 import java.util.Optional;
@@ -49,14 +50,15 @@ public class PlayerController {
     }
 
     @PostMapping
-    public ResponseEntity<Player> createPlayer(@RequestBody Player player) {
-        if (!StringUtils.hasText(player.getName())) {
+    public ResponseEntity<Player> createPlayer(@RequestBody PlayerRequest playerRequest) {
+        if (!StringUtils.hasText(playerRequest.name())) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        if (playersRepository.existsByName(player.getName())) {
+        if (playersRepository.existsByName(playerRequest.name())) {
             return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
-        Player savedPlayer = playersRepository.save(player);
+        Player savedPlayer = playersRepository.save(new Player(playerRequest.name(), playerRequest.initialBalance()));
+        // System.out.println("Created new player: " + savedPlayer.getInitialBalance());
         return new ResponseEntity<>(savedPlayer, HttpStatus.CREATED);
     }
 
