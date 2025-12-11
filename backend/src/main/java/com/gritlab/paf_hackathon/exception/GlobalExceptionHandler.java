@@ -41,4 +41,10 @@ public class GlobalExceptionHandler {
         ErrorResponse errorResponse = new ErrorResponse("500", "Internal Server Error", ex.getMessage());
         return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
+    @ExceptionHandler(PlayerNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handlePlayerNotFoundException(PlayerNotFoundException ex) {
+        ErrorResponse errorResponse = new ErrorResponse("404", "Player not found", ex.getMessage());
+        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+    }
 }
