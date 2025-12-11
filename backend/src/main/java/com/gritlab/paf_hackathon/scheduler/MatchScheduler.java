@@ -15,6 +15,7 @@ import com.gritlab.paf_hackathon.model.Outcome;
 import com.gritlab.paf_hackathon.repository.MatchRepository;
 
 import java.time.OffsetDateTime;
+import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
@@ -25,7 +26,7 @@ public class MatchScheduler {
 
     private static final Logger log = LoggerFactory.getLogger(MatchScheduler.class);
     private final MatchRepository repo;
-    private final KafkaTemplate<String, MatchFinishedEvent> kafkaTemplate;
+    private final Optional<KafkaTemplate<String, MatchFinishedEvent>> kafkaTemplate;
     private final Random random = new Random();
 
     // ⬇️ NEW: Track which matches have been processed
@@ -35,7 +36,7 @@ public class MatchScheduler {
     private String matchFinishedTopic;
 
     public MatchScheduler(MatchRepository repo,
-            KafkaTemplate<String, MatchFinishedEvent> kafkaTemplate) {
+            Optional<KafkaTemplate<String, MatchFinishedEvent>> kafkaTemplate) {
         this.repo = repo;
         this.kafkaTemplate = kafkaTemplate;
     }
@@ -97,15 +98,18 @@ public class MatchScheduler {
                 match.getResult(),
                 match.getEndsAt().toString());
 
-        kafkaTemplate.send(matchFinishedTopic, match.getId().toString(), event)
-                .whenComplete((result, ex) -> {
-                    if (ex == null) {
-                        log.info("Published MatchFinishedEvent to Kafka (idempotent): {}", event);
-                    } else {
-                        log.error("Failed to publish MatchFinishedEvent for match {}: {}",
-                                match.getId(), ex.getMessage());
-                    }
-                });
+        kafkaTemplate.ifPresentOrElse(
+                template -> template.send(matchFinishedTopic, match.getId().toString(), event)
+                        .whenComplete((result, ex) -> {
+                            if (ex == null) {
+                                log.info("Published MatchFinishedEvent to Kafka (idempotent): {}", event);
+                            } else {
+                                log.error("Failed to publish MatchFinishedEvent for match {}: {}",
+                                        match.getId(), ex.getMessage());
+                            }
+                        }),
+                () -> log.debug("Kafka not available, skipping event publish for match {}", match.getId())
+        );
     }
 
     @CacheEvict(value = "openMatches", allEntries = true)

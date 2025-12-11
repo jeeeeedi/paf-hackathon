@@ -26,6 +26,7 @@ import com.gritlab.paf_hackathon.model.Match;
 import com.gritlab.paf_hackathon.model.MatchStatus;
 import com.gritlab.paf_hackathon.model.Player;
 import com.gritlab.paf_hackathon.dto.SingleBetRequest;
+import com.gritlab.paf_hackathon.dto.CombinationBetRequest;
 
 import jakarta.validation.Valid;
 
