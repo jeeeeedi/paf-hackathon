@@ -19,7 +19,7 @@ public class Player {
 
     @NotNull
     @Field("balance")
-    private number balance; // ($double)
+    private Number balance; // ($double)
 
     @NotNull
     @Field("createdAt")
@@ -42,11 +42,11 @@ public class Player {
         this.name = name;
     }
 
-    public number getBalance() {
+    public Number getBalance() {
         return balance;
     }
 
-    public void setBalance(number balance) {
+    public void setBalance(Number balance) {
         this.balance = balance;
     }
 

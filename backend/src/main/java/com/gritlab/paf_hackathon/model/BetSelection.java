@@ -21,5 +21,5 @@ public class BetSelection {
 
     @NotNull
     @Field("Odds")
-    private Double oods;
+    private Number oods;
 }
