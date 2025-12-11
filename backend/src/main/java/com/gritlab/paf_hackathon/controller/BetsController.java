@@ -1,5 +1,6 @@
 package com.gritlab.paf_hackathon.controller;
 
+import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 import java.util.Collections;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import com.gritlab.paf_hackathon.exception.GlobalExceptionHandler;
 import com.gritlab.paf_hackathon.repository.BetsRepository;
 import com.gritlab.paf_hackathon.repository.MatchRepository;
 import com.gritlab.paf_hackathon.repository.PlayersRepository;
@@ -46,13 +48,16 @@ public class BetsController {
             @Valid @RequestBody SingleBetRequest request
     ) {
 
+    System.out.println("Received SingleBetRequest: " + request);
         // Convert match ID from String to UUID
         UUID matchId;
         try {
             matchId = UUID.fromString(request.getMatchId());
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null); // Invalid match ID
+            throw new IllegalArgumentException("Invalid match ID: " + request.getMatchId());
         }
+
+        System.out.println("matchId: " + matchId);
 
         // Fetch match
         Optional<Match> matchOpt = matchRepository.findById(matchId);
@@ -61,13 +66,15 @@ public class BetsController {
         }
         Match match = matchOpt.get();
 
+        System.out.println("match found ");
         // Check if betting is still open
         if (OffsetDateTime.now().isAfter(match.getKickoffAt()) || match.getStatus() != MatchStatus.UPCOMING) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null); // Betting closed
         }
         
+        System.out.println("match open ");
         // Fetch player
-        Optional<Player> playerOpt = playersRepository.findById(request.gePlayerName());
+        Optional<Player> playerOpt = playersRepository.findByName(request.gePlayerName());
         if (playerOpt.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null); // Player not found
         }
@@ -76,11 +83,15 @@ public class BetsController {
         double stake = request.getStake().doubleValue();
         double playerBalance = player.getBalance().doubleValue();
 
+        System.out.println("player: " + player);
+
         // Check player balance
         if (playerBalance < stake) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null); // Insufficient balance
         }
         
+        System.out.println("player can bet");
+
         // Calculate final odds based on outcome
         double finalOdds;
         switch (request.getOutcome()) {
@@ -97,12 +108,16 @@ public class BetsController {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null); // Invalid outcome
         }
         double potentialPayout = stake * finalOdds;
-        
+
+        System.out.println("potentialPayout: " + potentialPayout);
+
         // Create and save bet using BetsRepository
         BetSelection selection = new BetSelection();
         selection.setMatchId(match.getId().toString());
         selection.setOutcome(request.getOutcome());
         selection.setOdds(finalOdds);
+
+        System.out.println("created BetSelection");
         
         Bets bet = new Bets();
         bet.setPlayerName(player.getName());
@@ -111,16 +126,30 @@ public class BetsController {
         bet.setPotentialPayout(potentialPayout);
         bet.setType(BetType.SINGLE);
         bet.setStatus(BetStatus.PLACED);
-        bet.setPlacedAt(OffsetDateTime.now());
+        bet.setPlacedAt(Instant.now());
+
+        System.out.println("created Bets");
+
         bet.setSelections(Collections.singletonList(selection));
         
-        betsRepository.save(bet); // Save bet to MongoDB
+        System.out.println("set selection in bets");
 
-        // 8️⃣ Deduct stake from player balance and save player
+        System.out.println("bet: "+ bet);
+        try {
+            betsRepository.save(bet); // Save bet to MongoDB
+
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+
+        System.out.println("bet saved");
+
+        // Deduct stake from player balance and save player
         player.setBalance(playerBalance - stake);
         playersRepository.save(player);
+        System.out.println("update player");
 
-        // 9️⃣ Return created bet
+        // Return created bet
         return ResponseEntity.status(HttpStatus.CREATED).body(bet);
     }
     //bets cpmbinations

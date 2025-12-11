@@ -1,5 +1,7 @@
 package com.gritlab.paf_hackathon.dto;
 
+import java.math.BigDecimal;
+
 import com.gritlab.paf_hackathon.model.Outcome;
 
 import jakarta.validation.constraints.DecimalMin;
@@ -8,18 +10,29 @@ import jakarta.validation.constraints.NotNull;
 
 public class SingleBetRequest {
 
+    // getters, setters, constructor...
+
+    @Override
+    public String toString() {
+        return "SingleBetRequest{" +
+                "playerName='" + playerName + '\'' +
+                ", matchId='" + matchId + '\'' +
+                ", outcome=" + outcome +
+                ", stake=" + stake +
+                '}';
+    }
     @NotBlank(message = "playerName required")
-    private String playerName;
+    String playerName;
 
     @NotBlank(message = "matchId required")
-    private String matchId;
+    String matchId;
 
     @NotBlank(message = "outcome required")
-    private Outcome outcome;
+    Outcome outcome;
 
     @NotNull(message = "Stake required")
     @DecimalMin(value = "0.01", message = "Minimum: 0.01")
-    private Number stake;
+    Number stake;
 
     // Default constructor
     public SingleBetRequest() {}

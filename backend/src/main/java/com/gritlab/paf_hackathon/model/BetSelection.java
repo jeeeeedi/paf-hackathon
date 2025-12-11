@@ -6,17 +6,25 @@ import jakarta.validation.constraints.NotNull;
 
 @Document(collection = "betSelection")
 public class BetSelection {
+    @Override
+    public String toString() {
+        return "BetSelection{" +
+                "matchId='" + matchId + '\'' +
+                ", outcome=" + outcome +
+                ", odds=" + odds +
+                '}';
+    }
     
     @NotNull
     @Field("matchId")
     private String matchId;
 
     @NotNull
-    @Field("Outcome")
+    @Field("outcome")
     private Outcome outcome;
 
     @NotNull
-    @Field("Odds")
+    @Field("odds")
     private Number odds;
 
     public BetSelection() {
