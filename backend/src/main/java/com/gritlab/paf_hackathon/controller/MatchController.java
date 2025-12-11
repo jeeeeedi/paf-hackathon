@@ -1,9 +1,14 @@
-package com.gritlab.paf_hackathon.matches;
+package com.gritlab.paf_hackathon.controller;
 
 // MatchController.java
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import com.gritlab.paf_hackathon.repository.MatchRepository;
+import com.gritlab.paf_hackathon.model.Match;
+import com.gritlab.paf_hackathon.model.MatchStatus;
+import com.gritlab.paf_hackathon.model.Outcome;
 
 import java.util.List;
 import java.util.UUID;

@@ -1,4 +1,4 @@
-package com.gritlab.paf_hackathon.matches;
+package com.gritlab.paf_hackathon.dto;
 
 public class SeedMatchDto {
     private String home_team;

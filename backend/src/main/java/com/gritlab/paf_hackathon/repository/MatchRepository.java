@@ -1,7 +1,11 @@
-package com.gritlab.paf_hackathon.matches;
+package com.gritlab.paf_hackathon.repository;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.gritlab.paf_hackathon.model.Match;
+import com.gritlab.paf_hackathon.model.MatchStatus;
+import com.gritlab.paf_hackathon.dto.SeedMatchDto;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import jakarta.annotation.PostConstruct;
 import org.springframework.core.io.ClassPathResource;

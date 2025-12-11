@@ -1,4 +1,4 @@
-package com.gritlab.paf_hackathon.matches;
+package com.gritlab.paf_hackathon.scheduler;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -7,6 +7,10 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+
+import com.gritlab.paf_hackathon.model.MatchStatus;
+import com.gritlab.paf_hackathon.model.Outcome;
+import com.gritlab.paf_hackathon.repository.MatchRepository;
 
 import java.time.OffsetDateTime;
 import java.util.Random;

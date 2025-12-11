@@ -1,9 +1,10 @@
 package com.gritlab.paf_hackathon.model;
 
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
-// import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 // import jakarta.validation.constraints.Size;
 // import jakarta.validation.constraints.Email;
 
@@ -13,17 +14,26 @@ public class Player {
     @Id
     private String id; // ($uuid)
 
-    // @NotNull
+    @NotNull
     @Field("name")
     private String name;
 
-    // @NotNull
+    @NotNull
     @Field("balance")
-    private double balance; // ($double)
+    private Number balance; // ($double)
 
-    // @NotNull
+    @CreatedDate
+    @NotNull
     @Field("createdAt")
     private String createdAt; // ($date-time)
+
+    public Player() {
+    }
+
+    public Player(String name, Number balance) {
+        this.name = name;
+        this.balance = balance;
+    }
 
     // Getters and Setters
     public String getId() {
@@ -42,11 +52,11 @@ public class Player {
         this.name = name;
     }
 
-    public double getBalance() {
+    public Number getBalance() {
         return balance;
     }
 
-    public void setBalance(double balance) {
+    public void setBalance(Number balance) {
         this.balance = balance;
     }
 
