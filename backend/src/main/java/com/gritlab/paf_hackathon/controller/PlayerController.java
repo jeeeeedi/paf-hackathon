@@ -1,9 +1,12 @@
 package com.gritlab.paf_hackathon.controller;
+
 import com.gritlab.paf_hackathon.model.Player;
 import com.gritlab.paf_hackathon.model.Bet;
 import com.gritlab.paf_hackathon.model.Transaction;
 import com.gritlab.paf_hackathon.repository.PlayersRepository;
 import com.gritlab.paf_hackathon.dto.PlayerRequest;
+import com.gritlab.paf_hackathon.exception.PlayerAlreadyExistsException;
+import com.gritlab.paf_hackathon.exception.GlobalExceptionHandler;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,15 +21,18 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.PathVariable;
+import jakarta.validation.Valid;
+import org.springframework.validation.annotation.Validated;
 
 
 @RestController
 @RequestMapping("/players")
+@Validated
 public class PlayerController {
 
     @Autowired
     private PlayersRepository playersRepository;
-    
+
     @GetMapping("/{playerName}")
     public ResponseEntity<Player> getPlayerByName(@PathVariable String playerName) {
         Optional<Player> playerOpt = playersRepository.findByNameIgnoreCase(playerName);
@@ -51,11 +57,8 @@ public class PlayerController {
 
     @PostMapping
     public ResponseEntity<Player> createPlayer(@RequestBody PlayerRequest playerRequest) {
-        if (!StringUtils.hasText(playerRequest.name())) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
         if (playersRepository.existsByName(playerRequest.name())) {
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
+            throw new PlayerAlreadyExistsException("Player with this name already exists");
         }
         Player savedPlayer = playersRepository.save(new Player(playerRequest.name(), playerRequest.initialBalance()));
         // System.out.println("Created new player: " + savedPlayer.getInitialBalance());

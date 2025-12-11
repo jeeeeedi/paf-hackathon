@@ -1,3 +1,8 @@
+package com.gritlab.paf_hackathon.model;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
+import jakarta.validation.constraints.NotNull;
 import java.lang.annotation.Inherited;
 
 @Document(collection = "errors")
