@@ -2,6 +2,8 @@ package com.gritlab.paf_hackathon.matches;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.annotation.PostConstruct;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Repository;
 
@@ -16,7 +18,11 @@ public class MatchRepository {
 
     private final Map<UUID, Match> matches = new HashMap<>();
 
-    public MatchRepository(ObjectMapper objectMapper) {
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @PostConstruct
+    public void init() {
         loadFromSeedFile(objectMapper);
     }
 

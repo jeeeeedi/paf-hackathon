@@ -35,7 +35,7 @@ public class MatchController {
     // Extra admin endpoints to drive the simulator during hackathon
 
     @PostMapping("/admin/matches/{id}/start")
-    public ResponseEntity<Void> startMatch(@PathVariable UUID id) {
+    public ResponseEntity<Object> startMatch(@PathVariable UUID id) {
         return repo.findById(id)
                 .map(m -> {
                     m.setStatus(MatchStatus.IN_PROGRESS);
@@ -46,7 +46,7 @@ public class MatchController {
     }
 
     @PostMapping("/admin/matches/{id}/finish")
-    public ResponseEntity<Void> finishMatch(@PathVariable UUID id,
+    public ResponseEntity<Object> finishMatch(@PathVariable UUID id,
             @RequestParam Outcome result) {
         return repo.findById(id)
                 .map(m -> {
