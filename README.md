@@ -4,7 +4,7 @@ A full-stack sports betting simulator built with Spring Boot (backend) and React
 
 ## ⚡ Quickstart (2 minutes)
 
-**Prerequisites:** Java 17+, Node.js 18+, MongoDB running
+**Prerequisites:** Java 17+, Node.js 18+, MongoDB running (see MongoDB startup below)
 
 ### Option 1: Run with Simple Script
 ```bash
@@ -70,6 +70,11 @@ docker-compose down -v
 - Java 17+
 - Node.js 18+
 - MongoDB (running locally on default port 27017)
+
+### MongoDB Startup (local)
+- macOS (Homebrew): `brew services start mongodb-community@7.0`
+- Docker fallback: `docker run -d -p 27017:27017 --name paf-mongo mongo:7.0`
+- Verify connection: `mongosh --eval "db.runCommand({ ping: 1 })"`
 
 ### Backend Setup
 
