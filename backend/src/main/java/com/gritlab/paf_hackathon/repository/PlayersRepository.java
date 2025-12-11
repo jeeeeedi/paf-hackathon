@@ -4,5 +4,5 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import com.gritlab.paf_hackathon.model.Players;
 
 public interface PlayersRepository extends MongoRepository<Players, String> {
-    
+    Optional<Player> findByNameIgnoreCase(String name);
 }
