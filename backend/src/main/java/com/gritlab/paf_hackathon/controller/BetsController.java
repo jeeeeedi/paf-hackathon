@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import com.gritlab.paf_hackathon.repository.BetsRepository;
-import com.gritlab.paf_hackathon.repository.MatchesRepository;
+import com.gritlab.paf_hackathon.repository.MatchRepository;
 import com.gritlab.paf_hackathon.repository.PlayersRepository;
 import com.gritlab.paf_hackathon.model.Bets;
 import com.gritlab.paf_hackathon.dto.SingleBetRequest;
@@ -24,7 +24,7 @@ public class BetsController {
     private BetsRepository betsRepository;
 
     @Autowired
-    private MatchesRepository matchesRepository;
+    private MatchRepository matchRepository;
 
     @Autowired
     private PlayersRepository playersRepository;

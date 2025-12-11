@@ -1,7 +1,7 @@
 package com.gritlab.paf_hackathon.controller;
 
 import com.gritlab.paf_hackathon.model.Player;
-import com.gritlab.paf_hackathon.model.Bet;
+import com.gritlab.paf_hackathon.model.Bets;
 import com.gritlab.paf_hackathon.model.Transaction;
 import com.gritlab.paf_hackathon.repository.PlayersRepository;
 import com.gritlab.paf_hackathon.dto.PlayerRequest;
@@ -44,7 +44,7 @@ public class PlayerController {
     }
 
     @GetMapping("/{playerName}/bets")
-    public ResponseEntity<List<Bet>> getPlayerBets(@PathVariable String playerName) {
+    public ResponseEntity<List<Bets>> getPlayerBets(@PathVariable String playerName) {
         // Implementation to retrieve bets for the player
         return null;
     }
