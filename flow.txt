@@ -1,0 +1,208 @@
+┌─────────────────────────────────────────────────────────────────┐
+│ APPLICATION STARTUP │
+└─────────────────────────────────────────────────────────────────┘
+│
+▼
+┌───────────────────────┐
+│ PafHackathonApplication│
+│ @EnableCaching │
+│ @EnableScheduling │
+└───────────┬───────────┘
+│
+▼
+┌───────────────────────┐
+│ MatchRepository │
+│ Constructor Called │
+└───────────┬───────────┘
+│
+▼
+┌───────────────────────────────┐
+│ loadFromSeedFile() │
+│ 1. Read football_matches.json │
+│ 2. Parse with Jackson │
+│ 3. For each SeedMatchDto: │
+│ - Generate UUID │
+│ - kickoffAt = now + delay │
+│ - endsAt = kickoff + dur │
+│ - status = UPCOMING │
+│ - result = null │
+│ 4. Store in HashMap │
+└───────────┬───────────────────┘
+│
+▼
+┌───────────────────────┐
+│ Backend Ready │
+│ Port 8080 │
+└───────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────┐
+│ GET /matches REQUEST FLOW │
+└─────────────────────────────────────────────────────────────────┘
+│
+▼
+┌───────────────────────┐
+│ Frontend calls │
+│ GET /matches │
+└───────────┬───────────┘
+│
+▼
+┌───────────────────────┐
+│ MatchController │
+│ listOpenMatches() │
+└───────────┬───────────┘
+│
+▼
+┌─────────────────────────┐
+│ Check Cache │
+│ @Cacheable("openMatches")│
+└──────┬──────────┬────────┘
+│ │
+Hit │ │ Miss
+│ │
+▼ ▼
+┌──────────────┐ ┌──────────────────┐
+│ Return │ │ MatchRepository │
+│ Cached Result │ │ findOpenOrInProgress()│
+└──────┬────────┘ └────────┬─────────┘
+│ │
+│ ▼
+│ ┌────────────────────┐
+│ │ Filter by status: │
+│ │ UPCOMING or │
+│ │ IN_PROGRESS │
+│ │ Sort by kickoffAt │
+│ └────────┬───────────┘
+│ │
+│ ▼
+│ ┌────────────────────┐
+│ │ Store in Cache │
+│ │ Return List<Match> │
+│ └────────┬───────────┘
+│ │
+└────────────────────┘
+│
+▼
+┌───────────────────────┐
+│ HTTP 200 + JSON Array │
+│ to Frontend │
+└───────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────┐
+│ SCHEDULED MATCH LIFECYCLE UPDATE (Every 1 sec) │
+└─────────────────────────────────────────────────────────────────┘
+│
+▼
+┌───────────────────────┐
+│ MatchScheduler │
+│ @Scheduled(1000ms) │
+│ updateMatchStatuses() │
+└───────────┬───────────┘
+│
+▼
+┌───────────────────────┐
+│ Get current time │
+│ OffsetDateTime now │
+└───────────┬───────────┘
+│
+▼
+┌───────────────────────┐
+│ Loop through all │
+│ matches in repo │
+└───────────┬───────────┘
+│
+▼
+┌───────────────────────────────┐
+│ For each match: │
+└───┬───────────────────────┬───┘
+│ │
+▼ ▼
+┌────────────────────────┐ ┌──────────────────────┐
+│ Status = UPCOMING │ │ Status = UPCOMING or │
+│ AND now > kickoffAt │ │ IN_PROGRESS AND │
+│ AND now < endsAt? │ │ now > endsAt? │
+└────┬───────────────────┘ └──────┬───────────────┘
+│ YES │ YES
+▼ ▼
+┌────────────────────┐ ┌─────────────────────────┐
+│ Change Status to │ │ If result == null: │
+│ IN_PROGRESS │ │ Set random outcome │
+│ Save to repo │ │ (HOME/DRAW/AWAY) │
+│ Log info │ │ Change status to │
+└────────────────────┘ │ FINISHED │
+│ Save to repo │
+│ Log info │
+└──────┬──────────────────┘
+│
+▼
+┌──────────────────────┐
+│ evictOpenMatchesCache()│
+│ @CacheEvict │
+│ ("openMatches") │
+└──────┬───────────────┘
+│
+▼
+┌──────────────────────┐
+│ Clear entire cache │
+│ Log debug │
+└──────┬───────────────┘
+│
+▼
+┌──────────────────────┐
+│ TODO: Publish │
+│ MatchFinished event │
+│ to Kafka │
+└──────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────┐
+│ GET /matches/finished REQUEST FLOW │
+└─────────────────────────────────────────────────────────────────┘
+│
+▼
+┌───────────────────────┐
+│ Frontend calls │
+│ GET /matches/finished │
+└───────────┬───────────┘
+│
+▼
+┌───────────────────────┐
+│ MatchController │
+│ listFinishedMatches() │
+└───────────┬───────────┘
+│
+▼
+┌───────────────────────┐
+│ MatchRepository │
+│ findFinished() │
+└───────────┬───────────┘
+│
+▼
+┌───────────────────────┐
+│ Filter by status: │
+│ FINISHED │
+│ Sort by endsAt DESC │
+└───────────┬───────────┘
+│
+▼
+┌───────────────────────┐
+│ HTTP 200 + JSON Array │
+│ to Frontend │
+└───────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────┐
+│ DATA MODELS │
+└─────────────────────────────────────────────────────────────────┘
+
+Match:
+
+- id (UUID)
+- homeTeam, awayTeam (String)
+- homeOdds, drawOdds, awayOdds (double)
+- kickoffAt, endsAt (OffsetDateTime)
+- status (MatchStatus enum)
+- result (Outcome enum, nullable)
+
+MatchStatus: UPCOMING → IN_PROGRESS → FINISHED
+
+Outcome: HOME | DRAW | AWAY
+
+SeedMatchDto: Maps to football_matches.json fields
