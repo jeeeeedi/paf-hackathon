@@ -51,5 +51,25 @@ public class BetsController {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(placeholderBet);
     }
-    //bets cpmbinations
+
+    @PostMapping("/combination")
+    public ResponseEntity<Bets> placeCombinationBet(
+            @Valid @RequestBody CombinationBetRequest request
+    ) {
+        // Similar TODOs as single bet but for combination bets
+
+        // check if player has sufficient balance
+        // calculate combined odds and potential payout
+        // save bet in DB using betsRepository
+
+        // Example placeholder response until logic is implemented
+        Bets placeholderBet = new Bets();
+        placeholderBet.setPlayerName("temp_combination");
+        placeholderBet.setStake(request.getStake().doubleValue());
+        placeholderBet.setFinalOdds(2.0);
+        placeholderBet.setPotentialPayout(request.getStake().doubleValue() * 2);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(placeholderBet);
+
+    }
 }
