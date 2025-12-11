@@ -6,24 +6,10 @@ A full-stack sports betting simulator built with Spring Boot (backend) and React
 
 **Prerequisites:** Java 17+, Node.js 18+, MongoDB running (see MongoDB startup below)
 
-### Option 1: Run with Simple Script
-```bash
-./run-docker.sh
-```
-✅ Everything runs in Docker (MongoDB, Backend, Frontend)
-Open http://localhost:5173
-
-### Option 2: Run Locally with Script
-```bash
-./run-local-dev.sh
-```
-✅ Backend runs on http://localhost:8080
-✅ Frontend runs on http://localhost:5173
-
-### Option 3: Manual Setup
+### Manual Setup
 1. **Terminal 1 - Backend:**
 ```bash
-cd backend && ./mvnw spring-boot:run
+cd backend && mvn spring-boot:run
 ```
 2. **Terminal 2 - Frontend:**
 ```bash
@@ -31,38 +17,6 @@ cd frontend && npm install && npm run dev
 ```
 
 **Done!** Open http://localhost:5173 in your browser and start betting.
-
----
-
-## Docker Setup (Recommended)
-
-### Prerequisites
-- Docker and Docker Compose installed
-
-### Run with Docker Compose
-
-```bash
-docker-compose up --build
-```
-
-This will:
-- Start MongoDB on port 27017
-- Build and start the backend on http://localhost:8080
-- Build and start the frontend on http://localhost:5173
-
-**Done!** Open http://localhost:5173 in your browser.
-
-To stop the services:
-```bash
-docker-compose down
-```
-
-To remove volumes (reset database):
-```bash
-docker-compose down -v
-```
-
----
 
 ## Full Setup Guide
 
@@ -85,7 +39,7 @@ cd backend
 
 2. Run the Spring Boot application:
 ```bash
-./mvnw spring-boot:run
+mvn spring-boot:run
 ```
 
 The backend will start on `http://localhost:8080` and automatically:
