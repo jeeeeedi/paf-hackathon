@@ -19,8 +19,9 @@ public class Player {
 
     @NotNull
     @Field("balance")
-    private number balance; // ($double)
+    private Number balance; // ($double)
 
+    @CreatedDate
     @NotNull
     @Field("createdAt")
     private String createdAt; // ($date-time)
@@ -42,11 +43,11 @@ public class Player {
         this.name = name;
     }
 
-    public number getBalance() {
+    public Number getBalance() {
         return balance;
     }
 
-    public void setBalance(number balance) {
+    public void setBalance(Number balance) {
         this.balance = balance;
     }
 

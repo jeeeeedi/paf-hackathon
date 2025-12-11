@@ -1,6 +1,8 @@
 package com.gritlab.paf_hackathon.controller;
 import com.gritlab.paf_hackathon.model.Player;
-import com.gritlab.paf_hackathon.repository.PlayerRepository;
+import com.gritlab.paf_hackathon.model.Bet;
+import com.gritlab.paf_hackathon.model.Transaction;
+import com.gritlab.paf_hackathon.repository.PlayersRepository;
 
 import java.util.List;
 import java.util.Optional;
@@ -14,17 +16,19 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.PathVariable;
+
 
 @RestController
 @RequestMapping("/players")
 public class PlayerController {
 
     @Autowired
-    private PlayerRepository playerRepository;
+    private PlayersRepository playersRepository;
     
-    @GetMapping("/{/{playerName}")
+    @GetMapping("/{playerName}")
     public ResponseEntity<Player> getPlayerByName(@PathVariable String playerName) {
-        Optional<Player> playerOpt = playerRepository.findByNameIgnoreCase(playerName);
+        Optional<Player> playerOpt = playersRepository.findByNameIgnoreCase(playerName);
         if (playerOpt.isPresent()) {
             return new ResponseEntity<>(playerOpt.get(), HttpStatus.OK);
         } else {
@@ -35,11 +39,13 @@ public class PlayerController {
     @GetMapping("/{playerName}/bets")
     public ResponseEntity<List<Bet>> getPlayerBets(@PathVariable String playerName) {
         // Implementation to retrieve bets for the player
+        return null;
     }
 
-    @GetMapping("{playerName}/transactions")
+    @GetMapping("/{playerName}/transactions")
     public ResponseEntity<List<Transaction>> getPlayerTransactions(@PathVariable String playerName) {
         // Implementation to retrieve transactions for the player
+        return null;
     }
 
     @PostMapping
@@ -47,10 +53,10 @@ public class PlayerController {
         if (!StringUtils.hasText(player.getName())) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        if (playerRepository.existsByName(player.getName())) {
+        if (playersRepository.existsByName(player.getName())) {
             return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
-        Player savedPlayer = playerRepository.save(player);
+        Player savedPlayer = playersRepository.save(player);
         return new ResponseEntity<>(savedPlayer, HttpStatus.CREATED);
     }
 
