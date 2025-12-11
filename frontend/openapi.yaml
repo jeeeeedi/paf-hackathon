@@ -1,0 +1,424 @@
+openapi: 3.0.3
+info:
+  title: Sports Betting Simulator API
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080
+paths:
+  /matches:
+    get:
+      summary: List upcoming and in-progress matches
+      description: Returns only matches that have not finished; odds reflect current offer. Cache responses for 30s and evict when a match finishes.
+      responses:
+        '200':
+          description: Matches that are open or in progress
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Match'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /matches/finished:
+    get:
+      summary: List finished matches with outcomes
+      description: Returns matches that have finished, including their results and settlement times.
+      responses:
+        '200':
+          description: Finished matches
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Match'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /players:
+    post:
+      summary: Create player
+      description: Creates a player with a unique (case-insensitive) name and initial balance.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePlayerRequest'
+      responses:
+        '201':
+          description: Player created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Player'
+        '409':
+          description: Player name already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /players/{playerName}:
+    get:
+      summary: Fetch player
+      description: Retrieves player details (case-insensitive lookup).
+      parameters:
+        - name: playerName
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Player found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Player'
+        '404':
+          description: Player not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /bets/single:
+    post:
+      summary: Place single bet
+      description: Places a single-outcome bet; only allowed before match start and when balance is sufficient.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SingleBetRequest'
+      responses:
+        '201':
+          description: Bet placed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bet'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          description: Player or match not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Betting closed or insufficient balance
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /bets/combination:
+    post:
+      summary: Place combination bet
+      description: Places a multi-selection bet; final odds = product of all selection odds. All selections must win. Only allowed before any selected match starts and when balance is sufficient.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CombinationBetRequest'
+      responses:
+        '201':
+          description: Combination bet placed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bet'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          description: Player or one/more matches not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Betting closed or insufficient balance
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /players/{playerName}/bets:
+    get:
+      summary: Player bet history
+      description: Lists bets for a player with optional status filtering (e.g., PLACED, WON, LOST).
+      parameters:
+        - name: playerName
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/BetStatus'
+          style: form
+          explode: true
+      responses:
+        '200':
+          description: Bet history
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Bet'
+        '404':
+          description: Player not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /players/{playerName}/transactions:
+    get:
+      summary: Player transaction history
+      description: Returns all credit and debit transactions for the player (e.g., stakes, payouts) in descending time order.
+      parameters:
+        - name: playerName
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Transaction history
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Transaction'
+        '404':
+          description: Player not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          $ref: '#/components/responses/ServerError'
+components:
+  schemas:
+    Match:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        homeTeam:
+          type: string
+        awayTeam:
+          type: string
+        homeOdds:
+          type: number
+          format: double
+        drawOdds:
+          type: number
+          format: double
+        awayOdds:
+          type: number
+          format: double
+        kickoffAt:
+          type: string
+          format: date-time
+        endsAt:
+          type: string
+          format: date-time
+        status:
+          $ref: '#/components/schemas/MatchStatus'
+        result:
+          $ref: '#/components/schemas/Outcome'
+          nullable: true
+    Player:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        balance:
+          type: number
+          format: double
+        createdAt:
+          type: string
+          format: date-time
+    CreatePlayerRequest:
+      type: object
+      required: [name, initialBalance]
+      properties:
+        name:
+          type: string
+          description: Unique player name (case-insensitive)
+        initialBalance:
+          type: number
+          format: double
+          minimum: 0
+    SingleBetRequest:
+      type: object
+      required: [playerName, matchId, outcome, stake]
+      properties:
+        playerName:
+          type: string
+        matchId:
+          type: string
+          format: uuid
+        outcome:
+          $ref: '#/components/schemas/Outcome'
+        stake:
+          type: number
+          format: double
+          minimum: 0.01
+    CombinationBetRequest:
+      type: object
+      required: [playerName, selections, stake]
+      properties:
+        playerName:
+          type: string
+        selections:
+          type: array
+          minItems: 2
+          items:
+            $ref: '#/components/schemas/BetSelectionRequest'
+        stake:
+          type: number
+          format: double
+          minimum: 0.01
+    BetSelectionRequest:
+      type: object
+      required: [matchId, outcome]
+      properties:
+        matchId:
+          type: string
+          format: uuid
+        outcome:
+          $ref: '#/components/schemas/Outcome'
+    Bet:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        playerName:
+          type: string
+        type:
+          $ref: '#/components/schemas/BetType'
+        status:
+          $ref: '#/components/schemas/BetStatus'
+        stake:
+          type: number
+          format: double
+        finalOdds:
+          type: number
+          format: double
+          description: Locked odds (product of selections for combinations)
+        potentialPayout:
+          type: number
+          format: double
+        winAmount:
+          type: number
+          format: double
+          nullable: true
+        placedAt:
+          type: string
+          format: date-time
+        settledAt:
+          type: string
+          format: date-time
+          nullable: true
+        selections:
+          type: array
+          items:
+            $ref: '#/components/schemas/BetSelection'
+    BetSelection:
+      type: object
+      properties:
+        matchId:
+          type: string
+          format: uuid
+        outcome:
+          $ref: '#/components/schemas/Outcome'
+        odds:
+          type: number
+          format: double
+    Transaction:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        playerName:
+          type: string
+        type:
+          type: string
+          enum: [DEBIT, CREDIT]
+        reason:
+          type: string
+          enum: [BET_PLACED, PAYOUT]
+        amount:
+          type: number
+          format: double
+        balanceAfter:
+          type: number
+          format: double
+        referenceBetId:
+          type: string
+          format: uuid
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+    Outcome:
+      type: string
+      enum: [HOME, DRAW, AWAY]
+    MatchStatus:
+      type: string
+      enum: [UPCOMING, IN_PROGRESS, FINISHED]
+    BetStatus:
+      type: string
+      enum: [PLACED, WON, LOST]
+    BetType:
+      type: string
+      enum: [SINGLE, COMBINATION]
+    Error:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        details:
+          type: string
+  responses:
+    BadRequest:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ServerError:
+      description: Unexpected server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
